@@ -34,6 +34,11 @@ def v_print(msg:str, arg:int):
     if verbose:
         print(msg % int(arg))
 
+@dispatch(str, int, int)
+def v_print(msg:str, arg1:int, arg2:int):
+    if verbose:
+        print(msg % (int(arg1), int(arg2)))
+
 if __name__ == "__main__":
     verbose = False
     dropDbOnly = False
@@ -100,9 +105,11 @@ if __name__ == "__main__":
         v_print("will create database db%d", int(i))
         cursor.execute("create database if not exists db%d" % i)
 
+    # create databases
     if numOfTb > 0:
         for i in range(0, numOfDb):
             cursor.execute("use db%d" % i)
+            v_print("will create %d tables for db%d", int(numOfTb), int(i))
             for j in range(0, numOfTb):
                 cursor.execute("create table tb%d (ts timestamp, temperature int, humidity float)" % j)
 
