@@ -25,19 +25,22 @@ import taos
 
 
 @dispatch(str, str)
-def v_print(msg:str, arg:str):
+def v_print(msg: str, arg: str):
     if verbose:
         print(msg % arg)
 
+
 @dispatch(str, int)
-def v_print(msg:str, arg:int):
+def v_print(msg: str, arg: int):
     if verbose:
         print(msg % int(arg))
 
+
 @dispatch(str, int, int)
-def v_print(msg:str, arg1:int, arg2:int):
+def v_print(msg: str, arg1: int, arg2: int):
     if verbose:
         print(msg % (int(arg1), int(arg2)))
+
 
 if __name__ == "__main__":
     verbose = False
@@ -87,9 +90,13 @@ if __name__ == "__main__":
             fileOut = value
             v_print("file is %s", fileOut)
 
-    conn = taos.connect(host="127.0.0.1", user="root", password="taosdata", config="/etc/taos")
+    conn = taos.connect(
+        host="127.0.0.1",
+        user="root",
+        password="taosdata",
+        config="/etc/taos")
     cursor = conn.cursor()
-    
+
     # drop exist databases first
     for i in range(0, numOfDb):
         v_print("will drop database db%d", int(i))
@@ -111,7 +118,9 @@ if __name__ == "__main__":
             cursor.execute("use db%d" % i)
             v_print("will create %d tables for db%d", int(numOfTb), int(i))
             for j in range(0, numOfTb):
-                cursor.execute("create table tb%d (ts timestamp, temperature int, humidity float)" % j)
+                cursor.execute(
+                    "create table tb%d (ts timestamp, temperature int, humidity float)" %
+                    j)
 
                 if numOfRec > 0:
                     start_time = datetime.datetime(2020, 9, 25)
@@ -119,21 +128,24 @@ if __name__ == "__main__":
                     sqlcmd = ['insert into tb%d values' % j]
                     for row in range(0, numOfRec):
                         start_time += time_interval
-                        sqlcmd.append("('%s', %d, %f)" % (start_time, row, row * 1.2))
-    
+                        sqlcmd.append(
+                            "('%s', %d, %f)" %
+                            (start_time, row, row * 1.2))
+
                     affected_rows = cursor.execute(' '.join(sqlcmd))
-    
+
     if verbose:
         for i in range(0, numOfDb):
             cursor.execute("use db%d" % i)
             for j in range(0, numOfTb):
                 cursor.execute("select * from tb%d" % j)
                 data = cursor.fetchall()
-        
+
                 numOfRows = cursor.rowcount
                 numOfCols = len(cursor.description)
-        
+
                 for row in range(numOfRows):
-                    print("Row%d: ts=%s, temperature=%d, humidity=%f" % (row, data[row][0], data[row][1], data[row][2]))
-        
+                    print("Row%d: ts=%s, temperature=%d, humidity=%f" %
+                          (row, data[row][0], data[row][1], data[row][2]))
+
     print("done")
