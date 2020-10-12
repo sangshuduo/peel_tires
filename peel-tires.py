@@ -59,6 +59,10 @@ if __name__ == "__main__":
             print('Author: Shuduo Sang <sangshuduo@gmail.com>')
             print('')
 
+            print('Usage: python3 peel-tires.py [Options]')
+            print('')
+            print('Options:')
+            print('\t-d --numofDb specify number of databases, default is 1')
             print('\t-d --numofDb specify number of databases, default is 1')
             print('\t-t --numofTb specify number of tables per database, default is 1')
             print('\t-r --numofRec specify number of records per table, default is 10')
@@ -118,6 +122,7 @@ if __name__ == "__main__":
             cursor.execute("use db%d" % i)
             v_print("will create %d tables for db%d", int(numOfTb), int(i))
             for j in range(0, numOfTb):
+                v_print("create tb%d ", int(j))
                 cursor.execute(
                     "create table tb%d (ts timestamp, temperature int, humidity float)" %
                     j)
