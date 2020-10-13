@@ -51,7 +51,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if bool(opts) is False:
-        print('Try `peel_tires.py --help` for more options.')
+        print('Try `peel-tires.py --Help` for more options.')
         sys.exit(1)
 
     for key, value in opts:
