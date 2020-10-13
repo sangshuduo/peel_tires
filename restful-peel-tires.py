@@ -221,9 +221,16 @@ if __name__ == "__main__":
                     v_print("sqlCmd: %s", cmd)
                     restful_execute(host, port, user, password, cmd)
 
+        if verbose:
+            for i in range(0, numOfDb):
+                restful_execute(host, port, user, password, "use db%d" % i)
+                for j in range(0, numOfTb):
+                    restful_execute("select count(*) from stb%d" % j)
+
+        print("done")
         sys.exit(0)
 
-    elif numOfTb > 0:
+    if numOfTb > 0:
         for i in range(0, numOfDb):
             restful_execute(host, port, user, password, "USE db%d" % i)
             for j in range(0, numOfTb):
