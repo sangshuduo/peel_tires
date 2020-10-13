@@ -158,13 +158,12 @@ if __name__ == "__main__":
             fileOut = value
             v_print("file is %s", fileOut)
 
-    v_print("cmd: %s", "show databases")
     restful_execute(
         host,
         port,
         user,
         password,
-        "show databases")
+        "SHOW DATABASES")
 
     if dropDbOnly:
         v_print("drop databases total %d", numOfDb)
@@ -177,13 +176,13 @@ if __name__ == "__main__":
                 port,
                 user,
                 password,
-                "drop database if exists db%d" %
+                "DROP DATABASE IF EXISTS db%d" %
                 i)
 
-        print("Done")
+        print("done")
         sys.exit(0)
 
-    # CREATE DATABASEs
+    # create databases
     for i in range(0, numOfDb):
         v_print("will create database db%d", int(i))
         restful_execute(
@@ -191,7 +190,7 @@ if __name__ == "__main__":
             port,
             user,
             password,
-            "CREATE DATABASE if not exists db%d" %
+            "CREATE DATABASE IF NOT EXISTS db%d" %
             i)
         restful_execute(host, port, user, password, "USE db%d" % i)
 
@@ -202,7 +201,7 @@ if __name__ == "__main__":
                 port,
                 user,
                 password,
-                "CREATE TABLE if not exists st%d (ts timestamp, value float) TAGS (uuid binary(50))" %
+                "CREATE TABLE IF NOT EXISTS st%d (ts timestamp, value float) TAGS (uuid binary(50))" %
                 i)
 
             for iterator in range(0, iteration):
@@ -244,7 +243,7 @@ if __name__ == "__main__":
                     port,
                     user,
                     password,
-                    "create table tb%d (ts timestamp, value float)" %
+                    "CREATE TABLE tb%d (ts timestamp, value float)" %
                     j)
 
                 if numOfRec > 0:
