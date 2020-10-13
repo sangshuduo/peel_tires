@@ -41,6 +41,9 @@ def v_print(msg: str, arg: int):
 def restful_execute(host: str, port: int, user: str, password: str, cmd: str):
     url = "http://%s:%d/rest/sql" % (host, port)
 
+    if verbose:
+        v_print("cmd: %s", cmd)
+
     resp = requests.post(url, cmd, auth=(user, password))
 
     v_print("resp status: %d", resp.status_code)
@@ -225,10 +228,9 @@ if __name__ == "__main__":
 
         if verbose:
             for i in range(0, numOfDb):
-                restful_execute(host, port, user, password, "USE db%d" % i)
                 for j in range(0, numOfStb):
                     restful_execute(host, port, user, password,
-                                    "SELECT COUNT(*) FROM stb%d" % (j,))
+                                    "SELECT COUNT(*) FROM db%d.st%d" % (i, j,))
 
         print("done")
         sys.exit(0)
