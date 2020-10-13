@@ -225,9 +225,10 @@ if __name__ == "__main__":
 
         if verbose:
             for i in range(0, numOfDb):
-                restful_execute(host, port, user, password, "use db%d" % i)
-                for j in range(0, numOfTb):
-                    restful_execute("select count(*) from stb%d" % j)
+                restful_execute(host, port, user, password, "USE db%d" % i)
+                for j in range(0, numOfStb):
+                    restful_execute(host, port, user, password,
+                                    "SELECT COUNT(*) FROM stb%d" % (j,))
 
         print("done")
         sys.exit(0)
@@ -259,8 +260,9 @@ if __name__ == "__main__":
 
     if verbose:
         for i in range(0, numOfDb):
-            restful_execute(host, port, user, password, "use db%d" % i)
+            restful_execute(host, port, user, password, "USE db%d" % i)
             for j in range(0, numOfTb):
-                restful_execute("select count(*) from tb%d" % j)
+                restful_execute(host, port, user, password,
+                                "SELECT COUNT(*) FROM tb%d" % (j,))
 
     print("done")
