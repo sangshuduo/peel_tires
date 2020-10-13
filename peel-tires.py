@@ -100,33 +100,34 @@ if __name__ == "__main__":
         config="/etc/taos")
     cursor = conn.cursor()
 
-    # drop exist databases first
-    for i in range(0, numOfDb):
-        v_print("will drop database db%d", int(i))
-        cursor.execute("drop database if exists db%d" % i)
-
     if dropDbOnly:
         v_print("drop databases total %d", numOfDb)
-        print("Done")
+
+        # drop exist databases first
+        for i in range(0, numOfDb):
+            v_print("will drop database db%d", int(i))
+            cursor.execute("DROP DATABASE IF EXISTS db%d" % i)
+
+        print("done")
         sys.exit(0)
 
     # create databases
     for i in range(0, numOfDb):
         v_print("will create database db%d", int(i))
-        cursor.execute("create database if not exists db%d" % i)
+        cursor.execute("CREATE DATABASE IF NOT EXISTS db%d" % i)
 
     if numOfTb > 0:
         for i in range(0, numOfDb):
-            cursor.execute("use db%d" % i)
+            cursor.execute("USE db%d" % i)
             for j in range(0, numOfTb):
                 cursor.execute(
-                    "create table tb%d (ts timestamp, temperature int, humidity float)" %
+                    "CREATE TABLE tb%d (ts timestamp, temperature int, humidity float)" %
                     j)
 
                 if numOfRec > 0:
                     start_time = datetime.datetime(2020, 9, 25)
                     time_interval = datetime.timedelta(seconds=60)
-                    sqlcmd = ['insert into tb%d values' % j]
+                    sqlcmd = ['INSERT INTO tb%d VALUES' % j]
                     for row in range(0, numOfRec):
                         start_time += time_interval
                         sqlcmd.append(
@@ -137,9 +138,9 @@ if __name__ == "__main__":
 
     if verbose:
         for i in range(0, numOfDb):
-            cursor.execute("use db%d" % i)
+            cursor.execute("USE db%d" % i)
             for j in range(0, numOfTb):
-                cursor.execute("select * from tb%d" % j)
+                cursor.execute("SELECT * FROM tb%d" % (j,))
                 data = cursor.fetchall()
 
                 numOfRows = cursor.rowcount
