@@ -36,12 +36,6 @@ def v_print(msg: str, arg: int):
         print(msg % int(arg))
 
 
-@dispatch(str, int, int)
-def v_print(msg: str, arg1: int, arg2: int):
-    if verbose:
-        print(msg % (int(arg1), int(arg2)))
-
-
 if __name__ == "__main__":
     verbose = False
     dropDbOnly = False
@@ -49,8 +43,17 @@ if __name__ == "__main__":
     numOfTb = 1
     numOfRec = 10
 
-    opts, args = getopt.gnu_getopt(sys.argv[1:], 'd:t:r:f:pvh', [
-        'numofDb', 'numofTb', 'numofRec', 'File=', 'droPdbonly', 'Verbose', 'Help'])
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'd:t:r:f:pvh', [
+            'numofDb', 'numofTb', 'numofRec', 'File=', 'droPdbonly', 'Verbose', 'Help'])
+    except getopt.GetoptError as err:
+        print('ERROR:', err)
+        sys.exit(1)
+
+    if bool(opts) is False:
+        print('Try `peel-tires.py --Help` for more options.')
+        sys.exit(1)
+
     for key, value in opts:
         if key in ['-h', '--Help']:
             print('')
