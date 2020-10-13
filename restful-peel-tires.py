@@ -67,7 +67,7 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 6041
     user = "root"
-    password = "taosdata"
+    defPass = "taosdata"
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 's:o:u:w:d:b:t:r:i:f:pnvh', [
@@ -119,6 +119,8 @@ if __name__ == "__main__":
 
         if key in ['-w', '--passWord']:
             password = value
+        else:
+            password = defPass
 
         if key in ['-n', '--Noverbose']:
             verbose = False
