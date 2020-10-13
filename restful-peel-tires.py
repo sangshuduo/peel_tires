@@ -71,8 +71,8 @@ if __name__ == "__main__":
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 's:o:u:w:d:b:t:r:i:f:pnvh', [
-            'hoSt', 'pOrt', 'User', 'passWord', 'numofDb', 'numofstB', 
-            'numofTb', 'numofRec', 'Iteration', 'File=', 'droPdbonly', 
+            'hoSt', 'pOrt', 'User', 'passWord', 'numofDb', 'numofstB',
+            'numofTb', 'numofRec', 'Iteration', 'File=', 'droPdbonly',
             'Noverbose', 'Verbose', 'Help'])
     except getopt.GetoptError as err:
         print('ERROR:', err)
@@ -95,10 +95,12 @@ if __name__ == "__main__":
             print('\t-u --User specify user name, default is root')
             print('\t-w --passWord specify password, default is taosdata')
             print('\t-d --numofDb specify number of databases, default is 1')
-            print('\t-b --numofStb specify number of super-tables per database, default is 1')
+            print(
+                '\t-b --numofStb specify number of super-tables per database, default is 1')
             print('\t-t --numofTb specify number of tables per database, default is 1')
             print('\t-r --numofRec specify number of records per table, default is 10')
-            print('\t-i --Iteration specify number of iteration of insertion, default is 1')
+            print(
+                '\t-i --Iteration specify number of iteration of insertion, default is 1')
             print('\t-p --droPdbonly drop exist database, number specified by -d')
 
             print('\t-n --Noverbose for no verbose output')
@@ -165,7 +167,13 @@ if __name__ == "__main__":
         # drop exist databases first
         for i in range(0, numOfDb):
             v_print("will drop database db%d", int(i))
-            restful_execute(host, port, user, password, "drop database if exists db%d" % i)
+            restful_execute(
+                host,
+                port,
+                user,
+                password,
+                "drop database if exists db%d" %
+                i)
 
         print("Done")
         sys.exit(0)
@@ -173,13 +181,24 @@ if __name__ == "__main__":
     # CREATE DATABASEs
     for i in range(0, numOfDb):
         v_print("will create database db%d", int(i))
-        restful_execute(host, port, user, password, "CREATE DATABASE if not exists db%d" % i)
+        restful_execute(
+            host,
+            port,
+            user,
+            password,
+            "CREATE DATABASE if not exists db%d" %
+            i)
         restful_execute(host, port, user, password, "USE db%d" % i)
 
     if numOfStb > 0:
         for i in range(0, numOfStb):
-            restful_execute(host, port, user, password, 
-                    "CREATE TABLE if not exists st%d (ts timestamp, value float) TAGS (uuid binary(50))" % i)
+            restful_execute(
+                host,
+                port,
+                user,
+                password,
+                "CREATE TABLE if not exists st%d (ts timestamp, value float) TAGS (uuid binary(50))" %
+                i)
 
             for iterator in range(0, iteration):
                 v_print("Iteration %d:", iteration)
@@ -191,11 +210,13 @@ if __name__ == "__main__":
                         for j in range(0, 50):
                             uuid_itr = random.randint(0, 9)
                             uuid = uuid + ("%s" % uuid_itr)
-    
+
                         v_print("uuid is: %s", uuid)
                         start_time = datetime.datetime(2020, 9, 25)
-                        sqlCmd.append("tb_%s USING st%d TAGS('%s') VALUES('%s', %f)" % (uuid, i, uuid, start_time, random.random()))
-    
+                        sqlCmd.append(
+                            "tb_%s USING st%d TAGS('%s') VALUES('%s', %f)" %
+                            (uuid, i, uuid, start_time, random.random()))
+
                     cmd = ' '.join(sqlCmd)
                     v_print("sqlCmd: %s", cmd)
                     restful_execute(host, port, user, password, cmd)
@@ -206,7 +227,11 @@ if __name__ == "__main__":
         for i in range(0, numOfDb):
             restful_execute(host, port, user, password, "USE db%d" % i)
             for j in range(0, numOfTb):
-                restful_execute(host, port, user, password,
+                restful_execute(
+                    host,
+                    port,
+                    user,
+                    password,
                     "create table tb%d (ts timestamp, value float)" %
                     j)
 
@@ -220,7 +245,8 @@ if __name__ == "__main__":
                             "('%s', %f)" %
                             (start_time, row * 1.2))
 
-                    restful_execute(host, port, user, password, ' '.join(sqlCmd))
+                    restful_execute(
+                        host, port, user, password, ' '.join(sqlCmd))
 
     if verbose:
         for i in range(0, numOfDb):
