@@ -23,8 +23,6 @@ import json
 import random
 from multipledispatch import dispatch
 
-import taos
-
 
 @dispatch(str, str)
 def v_print(msg: str, arg: str):
