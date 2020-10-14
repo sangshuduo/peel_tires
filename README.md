@@ -10,6 +10,7 @@ Peel Tires Run for TDengine
 Author: Shuduo Sang <sangshuduo@gmail.com>
 
 Usage: peel-tires.py [Option...]
+
     -d --numofDb specify number of databases, default is 1
     -t --numofTb specify number of tables per database, default is 1
     -r --numofRec specify number of records per table, default is 10
@@ -23,6 +24,7 @@ Peel Tires (RESTful API Version) Run for TDengine
 Author: Shuduo Sang <sangshuduo@gmail.com>
 
 Usage: restful-peel-tires.py [Option...]
+
     -s --hoSt specify host to connect, default is 127.0.0.1
     -o --pOrt specify port to connect, default is 6041
     -u --User specify user name, default is root
