@@ -205,23 +205,32 @@ if __name__ == "__main__":
             for iterator in range(0, iteration):
                 v_print("Iteration %d:", iteration)
 
-                sqlCmd = ['INSERT INTO']
-                if numOfRec > 0:
-                    for row in range(0, numOfRec):
+                if numOfTb > 0:
+                    for table in range(0, numOfTb):
+
+                        # generate uuid
                         uuid = ''
                         for j in range(0, 50):
                             uuid_itr = random.randint(0, 9)
                             uuid = uuid + ("%s" % uuid_itr)
-
                         v_print("uuid is: %s", uuid)
-                        start_time = datetime.datetime(2020, 9, 25)
-                        sqlCmd.append(
-                            "tb_%s USING st%d TAGS('%s') VALUES('%s', %f)" %
-                            (uuid, i, uuid, start_time, random.random()))
 
-                    cmd = ' '.join(sqlCmd)
-                    v_print("sqlCmd: %s", cmd)
-                    restful_execute(host, port, user, password, cmd)
+                        v_print("numOfRec %d:", numOfRec)
+                        if numOfRec > 0:
+                            sqlCmd = ['INSERT INTO']
+
+                            for row in range(0, numOfRec):
+
+                                start_time = datetime.datetime(2020, 9, 25)
+                                sqlCmd.append(
+                                    "tb_%s USING st%d TAGS('%s') VALUES('%s', %f)" %
+                                    (uuid, i, uuid,
+                                     start_time + datetime.timedelta(seconds = row),
+                                     random.random()))
+
+                            cmd = ' '.join(sqlCmd)
+                            v_print("sqlCmd: %s", cmd)
+                            restful_execute(host, port, user, password, cmd)
 
         if verbose:
             for i in range(0, numOfDb):
