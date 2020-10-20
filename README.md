@@ -17,6 +17,7 @@ Peel Tires (RESTful API Version) Run for TDengine
 Author: Shuduo Sang <sangshuduo@gmail.com>
 
 	-s --hoSt specify host to connect, default is 127.0.0.1
+	-m --one-More-host specify one more host to connect, default is not supported
 	-o --pOrt specify port to connect, default is 6041
 	-u --User specify user name, default is root
 	-w --passWord specify password, default is taosdata
