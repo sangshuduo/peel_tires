@@ -72,12 +72,14 @@ if __name__ == "__main__":
     defPass = "taosdata"
 
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 
-            's:m:o:u:w:d:b:t:r:i:f:pnvh', [
-            'hoSt', 'one-More-host', 'pOrt', 'User', 
+        opts, args = getopt.gnu_getopt(sys.argv[1:],
+                                       's:m:o:u:w:d:b:t:r:i:f:pnvh',
+                                       [
+            'hoSt', 'one-More-host', 'pOrt', 'User',
             'passWord', 'numofDb', 'numofstB',
             'numofTb', 'numofRec', 'Iteration', 'File=', 'droPdbonly',
-            'Noverbose', 'Verbose', 'Help'])
+            'Nobverbose', 'Verbose', 'Help'
+        ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
         sys.exit(1)
@@ -95,7 +97,8 @@ if __name__ == "__main__":
             print('')
 
             print('\t-s --hoSt specify host to connect, default is 127.0.0.1')
-            print('\t-m --one-More-host specify one more host to connect, default is not supported')
+            print(
+                '\t-m --one-More-host specify one more host to connect, default is not supported')
             print('\t-o --pOrt specify port to connect, default is 6041')
             print('\t-u --User specify user name, default is root')
             print('\t-w --passWord specify password, default is taosdata')
@@ -237,18 +240,21 @@ if __name__ == "__main__":
                                 sqlCmd.append(
                                     "%s.tb_%s USING %s.st%d TAGS('%s') VALUES('%s', %f)" %
                                     (current_db, uuid, current_db, i, uuid,
-                                     start_time + datetime.timedelta(seconds = row),
+                                     start_time + datetime.timedelta(seconds=row),
                                      random.random()))
 
                             cmd = ' '.join(sqlCmd)
                             v_print("sqlCmd: %s", cmd)
 
-                            if oneMoreHost is not "NotSuppored" and random.randint(0, 1) is 1:
+                            if oneMoreHost is not "NotSuppored" and random.randint(
+                                    0, 1) is 1:
                                 v_print("%s", "Send to second host")
-                                restful_execute(oneMoreHost, port, user, password, cmd)
+                                restful_execute(
+                                    oneMoreHost, port, user, password, cmd)
                             else:
                                 v_print("%s", "Send to first host")
-                                restful_execute(host, port, user, password, cmd)
+                                restful_execute(
+                                    host, port, user, password, cmd)
 
         if verbose:
             for i in range(0, numOfDb):
