@@ -116,6 +116,7 @@ if __name__ == "__main__":
         v_print("will create database db%d", int(i))
         cursor.execute("CREATE DATABASE IF NOT EXISTS db%d" % i)
 
+    # create databases
     if numOfTb > 0:
         for i in range(0, numOfDb):
             cursor.execute("USE db%d" % i)
