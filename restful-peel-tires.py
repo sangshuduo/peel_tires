@@ -66,13 +66,16 @@ if __name__ == "__main__":
     numOfRec = 10
     ieration = 1
     host = "127.0.0.1"
+    oneMoreHost = "NotSupported"
     port = 6041
     user = "root"
     defPass = "taosdata"
 
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 's:o:u:w:d:b:t:r:i:f:pnvh', [
-            'hoSt', 'pOrt', 'User', 'passWord', 'numofDb', 'numofstB',
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 
+            's:m:o:u:w:d:b:t:r:i:f:pnvh', [
+            'hoSt', 'one-More-host', 'pOrt', 'User', 
+            'passWord', 'numofDb', 'numofstB',
             'numofTb', 'numofRec', 'Iteration', 'File=', 'droPdbonly',
             'Noverbose', 'Verbose', 'Help'])
     except getopt.GetoptError as err:
@@ -92,6 +95,7 @@ if __name__ == "__main__":
             print('')
 
             print('\t-s --hoSt specify host to connect, default is 127.0.0.1')
+            print('\t-m --one-More-host specify one more host to connect, default is not supported')
             print('\t-o --pOrt specify port to connect, default is 6041')
             print('\t-u --User specify user name, default is root')
             print('\t-w --passWord specify password, default is taosdata')
@@ -111,6 +115,9 @@ if __name__ == "__main__":
 
         if key in ['-s', '--hoSt']:
             host = value
+
+        if key in ['-m', '--one-More-host']:
+            oneMoreHost = value
 
         if key in ['-o', '--pOrt']:
             port = int(value)
@@ -181,6 +188,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # create databases
+    current_db = "db"
+
     for i in range(0, numOfDb):
         v_print("will create database db%d", int(i))
         restful_execute(
@@ -190,7 +199,8 @@ if __name__ == "__main__":
             password,
             "CREATE DATABASE IF NOT EXISTS db%d" %
             i)
-        restful_execute(host, port, user, password, "USE db%d" % i)
+        current_db = "db%d" % i
+        restful_execute(host, port, user, password, "USE %s" % current_db)
 
     if numOfStb > 0:
         for i in range(0, numOfStb):
@@ -206,6 +216,8 @@ if __name__ == "__main__":
                 v_print("Iteration %d:", iteration)
 
                 if numOfTb > 0:
+                    v_print("numOfTb %d:", numOfTb)
+
                     for table in range(0, numOfTb):
 
                         # generate uuid
@@ -223,14 +235,20 @@ if __name__ == "__main__":
 
                                 start_time = datetime.datetime(2020, 9, 25)
                                 sqlCmd.append(
-                                    "tb_%s USING st%d TAGS('%s') VALUES('%s', %f)" %
-                                    (uuid, i, uuid,
+                                    "%s.tb_%s USING %s.st%d TAGS('%s') VALUES('%s', %f)" %
+                                    (current_db, uuid, current_db, i, uuid,
                                      start_time + datetime.timedelta(seconds = row),
                                      random.random()))
 
                             cmd = ' '.join(sqlCmd)
                             v_print("sqlCmd: %s", cmd)
-                            restful_execute(host, port, user, password, cmd)
+
+                            if oneMoreHost is not "NotSuppored" and random.randint(0, 1) is 1:
+                                v_print("%s", "Send to second host")
+                                restful_execute(oneMoreHost, port, user, password, cmd)
+                            else:
+                                v_print("%s", "Send to first host")
+                                restful_execute(host, port, user, password, cmd)
 
         if verbose:
             for i in range(0, numOfDb):
