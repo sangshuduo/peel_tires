@@ -33,6 +33,9 @@ Author: Shuduo Sang <sangshuduo@gmail.com>
 	-t --numofTb specify number of tables per database, default is 1
 	-r --numofRec specify number of records per table, default is 10
 	-i --Iteration specify number of iteration of insertion, default is 1
+	-P --Processes specify number of processes
+	-T --Threads specify number of threads
 	-p --droPdbonly drop exist database, number specified by -d
 	-n --Noverbose for no verbose output
 	-v --Verbose for verbose output
+
