@@ -22,6 +22,7 @@ import requests
 import json
 import random
 import time
+import datetime
 from multiprocessing import Process, Pool
 from multipledispatch import dispatch
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
@@ -185,6 +186,9 @@ def insert_func(arg: int):
             cmd = ' '.join(sqlCmd)
         v_print("sqlCmd: %s", cmd)
 
+    if measure:
+        exec_start_time = datetime.datetime.now()
+
     if oneMoreHost is not "NotSuppored" and random.randint(
             0, 1) is 1:
         v_print("%s", "Send to second host")
@@ -195,6 +199,10 @@ def insert_func(arg: int):
         restful_execute(
             host, port, user, password, cmd)
 
+    if measure:
+        exec_end_time = datetime.datetime.now()
+        exec_delta = exec_end_time - exec_start_time
+        print("%s, %d" % (time.strftime('%X'), exec_delta.microseconds))
 
 def create_tb_no_stb():
     for i in range(0, numOfDb):
@@ -240,6 +248,7 @@ def insert_data_process(i: int, begin: int, end: int):
 if __name__ == "__main__":
 
     verbose = False
+    measure = False
     dropDbOnly = False
     numOfDb = 1
     batch = 1
@@ -258,13 +267,13 @@ if __name__ == "__main__":
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:],
-                                       's:m:o:u:w:d:b:c:t:r:i:f:P:T:pnvh',
+                                       's:m:o:u:w:d:b:c:t:r:i:f:P:T:pnvMh',
                                        [
             'hoSt', 'one-More-host', 'pOrt', 'User',
             'passWord', 'numofDb', 'numofstB',
             'batCh', 'numofTb', 'numofRec', 'Iteration', 'File=',
             'Processes', 'Threads',
-            'droPdbonly', 'Nobverbose', 'Verbose', 'Help'
+            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'Help'
         ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
@@ -303,6 +312,7 @@ if __name__ == "__main__":
 
             print('\t-n --Noverbose for no verbose output')
             print('\t-v --Verbose for verbose output')
+            print('\t-M --Measure for performance measure')
             print('')
             sys.exit(0)
 
@@ -328,6 +338,9 @@ if __name__ == "__main__":
 
         if key in ['-v', '--Verbose']:
             verbose = True
+
+        if key in ['-M', '--Measure']:
+            measure = True
 
         if key in ['-P', '--Processes']:
             processes = int(value)
@@ -378,7 +391,8 @@ if __name__ == "__main__":
         password,
         "SHOW DATABASES")
 
-    start_time = time.time()
+    if measure:
+        start_time = time.time()
 
     if dropDbOnly:
         drop_database()
@@ -405,10 +419,12 @@ if __name__ == "__main__":
                                     "SELECT COUNT(*) FROM db%d.st%d" % (i, j,))
 
         print("done")
-        end_time = time.time()
-        print(
-            "Total time consumed {} seconds.".format(
-                (end_time - start_time)))
+
+        if measure:
+            end_time = time.time()
+            print(
+                "Total time consumed {} seconds.".format(
+                    (end_time - start_time)))
 
         sys.exit(0)
 
