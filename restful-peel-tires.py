@@ -17,7 +17,6 @@
 
 import sys
 import getopt
-import datetime
 import requests
 import json
 import random
