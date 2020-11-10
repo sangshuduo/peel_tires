@@ -21,11 +21,10 @@ import datetime
 import requests
 import json
 import random
-import threading
 import time
 from multiprocessing import Process, Pool
 from multipledispatch import dispatch
-from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED, FIRST_COMPLETED
+from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
 
 @dispatch(str, str)
