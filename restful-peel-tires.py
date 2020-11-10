@@ -243,6 +243,7 @@ if __name__ == "__main__":
     verbose = False
     dropDbOnly = False
     numOfDb = 1
+    batch = 1
     numOfTb = 1
     numOfStb = 0
     numOfRec = 10
@@ -258,16 +259,17 @@ if __name__ == "__main__":
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:],
-                                       's:m:o:u:w:d:b:t:r:i:f:P:T:pnvh',
+                                       's:m:o:u:w:d:b:c:t:r:i:f:P:T:pnvh',
                                        [
             'hoSt', 'one-More-host', 'pOrt', 'User',
             'passWord', 'numofDb', 'numofstB',
-            'numofTb', 'numofRec', 'Iteration', 'File=',
+            'batCh', 'numofTb', 'numofRec', 'Iteration', 'File=',
             'Processes', 'Threads',
             'droPdbonly', 'Nobverbose', 'Verbose', 'Help'
         ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
+        print('Try `restful-peel-tires.py --Help` for more options.')
         sys.exit(1)
 
     if bool(opts) is False:
@@ -291,6 +293,7 @@ if __name__ == "__main__":
             print('\t-d --numofDb specify number of databases, default is 1')
             print(
                 '\t-b --numofStb specify number of super-tables per database, default is 1')
+            print('\t-c --batCh specify number of batch for commands execution, default is 1')
             print('\t-t --numofTb specify number of tables per database, default is 1')
             print('\t-r --numofRec specify number of records per table, default is 10')
             print(
@@ -345,6 +348,9 @@ if __name__ == "__main__":
         if key in ['-d', '--numofDb']:
             numOfDb = int(value)
             v_print("numOfDb is %d", numOfDb)
+
+        if key in ['-c', '--batCh']:
+            batch = int(value)
 
         if key in ['-t', '--numofTb']:
             numOfTb = int(value)
