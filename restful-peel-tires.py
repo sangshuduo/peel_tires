@@ -272,19 +272,19 @@ if __name__ == "__main__":
             'passWord', 'numofDb', 'numofstB',
             'batCh', 'numofTb', 'numofRec', 'Iteration', 'File=',
             'Processes', 'Threads',
-            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'Help'
+            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'help'
         ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
-        print('Try `restful-peel-tires.py --Help` for more options.')
+        print('Try `restful-peel-tires.py --help` for more options.')
         sys.exit(1)
 
     if bool(opts) is False:
-        print('Try `restful-peel-tires.py --Help` for more options.')
+        print('Try `restful-peel-tires.py --help` for more options.')
         sys.exit(1)
 
     for key, value in opts:
-        if key in ['-h', '--Help']:
+        if key in ['-h', '--help']:
             print('')
             print(
                 'Peel Tires (RESTful API Version) Run for TDengine')
