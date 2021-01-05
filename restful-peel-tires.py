@@ -44,6 +44,7 @@ def v_print(msg: str, arg1: str, arg2: int):
     if verbose:
         print(msg % (arg1, int(arg2)))
 
+
 @dispatch(str, int, int)
 def v_print(msg: str, arg1: int, arg2: int):
     if verbose:
@@ -172,23 +173,24 @@ def insert_func(arg: int):
                 sqlCmd.append(
                     "%s.tb%s " % (current_db, arg))
 
-                if (numOfStb > 0 and autosubtable == True):
+                if (numOfStb > 0 and autosubtable):
                     sqlCmd.append("USING %s.st%d TAGS('%s') " %
-                        (current_db, numOfStb - 1, uuid))
+                                  (current_db, numOfStb - 1, uuid))
 
-                start_time = datetime.datetime(2020, 9, 25) + datetime.timedelta(seconds = row)
+                start_time = datetime.datetime(
+                    2020, 9, 25) + datetime.timedelta(seconds=row)
 
                 sqlCmd.append("VALUES ")
                 for batchIter in range(0, batch):
                     sqlCmd.append("('%s', %f) " %
-                     (start_time +
-                     datetime.timedelta(
-                         milliseconds=batchIter),
-                        random.random()))
+                                  (start_time +
+                                   datetime.timedelta(
+                                       milliseconds=batchIter),
+                                      random.random()))
                     row = row + 1
                     if row >= numOfRec:
                         v_print("BREAK, row: %d numOfRec:%d", row, numOfRec)
-                        break;
+                        break
 
             except Exception as e:
                 print("Error: %s" % e.args[0])
@@ -211,13 +213,18 @@ def insert_func(arg: int):
             if measure:
                 exec_end_time = datetime.datetime.now()
                 exec_delta = exec_end_time - exec_start_time
-                print("%s, %d" % (time.strftime('%X'), exec_delta.microseconds))
+                print(
+                    "%s, %d" %
+                    (time.strftime('%X'),
+                     exec_delta.microseconds))
 
             v_print("cmd: %s, length:%d", cmd, len(cmd))
+
 
 def create_tb_using_stb():
     # TODO:
     pass
+
 
 def create_tb():
     v_print("create_tb() numOfTb: %d", numOfTb)
@@ -231,6 +238,7 @@ def create_tb():
                 password,
                 "CREATE TABLE tb%d (ts timestamp, value float)" %
                 j)
+
 
 def insert_data_process(i: int, begin: int, end: int):
     tasks = end - begin
@@ -305,7 +313,8 @@ if __name__ == "__main__":
             print('\t-d --numofDb, specify number of databases, default is 1')
             print(
                 '\t-b --numofStb, specify number of super-tables per database, default is 0')
-            print('\t-c --batCh, specify number of batch for commands execution, default is 1')
+            print(
+                '\t-c --batCh, specify number of batch for commands execution, default is 1')
             print('\t-t --numofTb, specify number of tables per database, default is 1')
             print('\t-r --numofRec, specify number of records per table, default is 10')
             print('\t-P --Processes, specify number of processes')
@@ -452,4 +461,6 @@ if __name__ == "__main__":
     print("done")
     if measure:
         end_time = time.time()
-        print("Total time consumed {} seconds.".format((end_time - start_time)))
+        print(
+            "Total time consumed {} seconds.".format(
+                (end_time - start_time)))
