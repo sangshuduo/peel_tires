@@ -33,15 +33,15 @@ Usage: restful-peel-tires.py [Option...]
 	-u --User, specify user name, default is root
 	-w --passWord, specify password, default is taosdata
 	-d --numofDb, specify number of databases, default is 1
-	-b --numofStb, specify number of super-tables per database, default is 1
+	-b --numofStb, specify number of super-tables per database, default is 0
 	-c --batCh, specify number of batch for commands execution, default is 1
 	-t --numofTb, specify number of tables per database, default is 1
 	-r --numofRec, specify number of records per table, default is 10
-	-i --Iteration, specify number of iteration of insertion, default is 1
 	-P --Processes, specify number of processes
 	-T --Threads, specify number of threads
 	-p --droPdbonly, drop exist database, number specified by -d
-	-n --Noverbose, for no verbose output
 	-v --Verbose, for verbose output
 	-M --Measure, for performance measure
+	-A --Autosubtable, automatically create sub-table
+	-x --insertonLy, insert only, don't drop exist database and table
 
