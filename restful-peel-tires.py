@@ -39,6 +39,12 @@ def v_print(msg: str, arg: int):
         print(msg % int(arg))
 
 
+@dispatch(str, str, int)
+def v_print(msg: str, arg1: str, arg2: int):
+    if verbose:
+        print(msg % (arg1, int(arg2)))
+
+
 @dispatch(str, int, int)
 def v_print(msg: str, arg1: int, arg2: int):
     if verbose:
@@ -84,15 +90,15 @@ def insert_data(processes: int):
     begin = 0
     end = 0
 
-    quotient = iteration // processes
+    quotient = numOfTb // processes
     if quotient < 1:
-        processes = iteration
+        processes = numOfTb
         quotient = 1
 
-    remainder = iteration % processes
+    remainder = numOfTb % processes
     v_print(
-        "Iteration %d, quotient %d, remainder %d",
-        iteration,
+        "num of tables: %d, quotient: %d, remainder: %d",
+        numOfTb,
         quotient,
         remainder)
 
@@ -122,7 +128,7 @@ def create_stb():
             i)
 
 
-def create_database():
+def create_databases():
     for i in range(0, numOfDb):
         v_print("will create database db%d", int(i))
         restful_execute(
@@ -134,7 +140,7 @@ def create_database():
             i)
 
 
-def drop_database():
+def drop_databases():
     v_print("drop databases total %d", numOfDb)
 
     # drop exist databases first
@@ -159,51 +165,69 @@ def insert_func(arg: int):
 
     v_print("numOfRec %d:", numOfRec)
     if numOfRec > 0:
-        sqlCmd = ['INSERT INTO']
-
-        for row in range(0, numOfRec):
-
+        row = 0
+        while row < numOfRec:
+            v_print("row: %d", row)
+            sqlCmd = ['INSERT INTO ']
             try:
-                start_time = datetime.datetime(2020, 9, 25)
                 sqlCmd.append(
-                    "%s.tb_%s USING %s.st%d TAGS('%s') VALUES('%s', %f)" %
-                    (current_db,
-                     uuid,
-                     current_db,
-                     numOfStb -
-                     1,
-                     uuid,
-                     start_time +
-                     datetime.timedelta(
-                         seconds=random.randint(
-                             0,
-                             1000)),
-                        random.random()))
+                    "%s.tb%s " % (current_db, arg))
+
+                if (numOfStb > 0 and autosubtable):
+                    sqlCmd.append("USING %s.st%d TAGS('%s') " %
+                                  (current_db, numOfStb - 1, uuid))
+
+                start_time = datetime.datetime(
+                    2020, 9, 25) + datetime.timedelta(seconds=row)
+
+                sqlCmd.append("VALUES ")
+                for batchIter in range(0, batch):
+                    sqlCmd.append("('%s', %f) " %
+                                  (start_time +
+                                   datetime.timedelta(
+                                       milliseconds=batchIter),
+                                      random.random()))
+                    row = row + 1
+                    if row >= numOfRec:
+                        v_print("BREAK, row: %d numOfRec:%d", row, numOfRec)
+                        break
+
             except Exception as e:
                 print("Error: %s" % e.args[0])
 
             cmd = ' '.join(sqlCmd)
-        v_print("sqlCmd: %s", cmd)
 
-    if measure:
-        exec_start_time = datetime.datetime.now()
+            if measure:
+                exec_start_time = datetime.datetime.now()
 
-    if oneMoreHost != "NotSuppored" and random.randint(
-            0, 1) == 1:
-        v_print("%s", "Send to second host")
-        restful_execute(
-            oneMoreHost, port, user, password, cmd)
-    else:
-        v_print("%s", "Send to first host")
-        restful_execute(
-            host, port, user, password, cmd)
+            if oneMoreHost != "NotSupported" and random.randint(
+                    0, 1) == 1:
+                v_print("%s", "Send to second host")
+                restful_execute(
+                    oneMoreHost, port, user, password, cmd)
+            else:
+                v_print("%s", "Send to first host")
+                restful_execute(
+                    host, port, user, password, cmd)
 
-    if measure:
-        exec_end_time = datetime.datetime.now()
-        exec_delta = exec_end_time - exec_start_time
-        print("%s, %d" % (time.strftime('%X'), exec_delta.microseconds))
+            if measure:
+                exec_end_time = datetime.datetime.now()
+                exec_delta = exec_end_time - exec_start_time
+                print(
+                    "%s, %d" %
+                    (time.strftime('%X'),
+                     exec_delta.microseconds))
 
-def create_tb_no_stb():
+            v_print("cmd: %s, length:%d", cmd, len(cmd))
+
+
+def create_tb_using_stb():
+    # TODO:
+    pass
+
+
+def create_tb():
+    v_print("create_tb() numOfTb: %d", numOfTb)
     for i in range(0, numOfDb):
         restful_execute(host, port, user, password, "USE db%d" % i)
         for j in range(0, numOfTb):
@@ -215,23 +239,10 @@ def create_tb_no_stb():
                 "CREATE TABLE tb%d (ts timestamp, value float)" %
                 j)
 
-            if numOfRec > 0:
-                start_time = datetime.datetime(2020, 9, 25)
-                time_interval = datetime.timedelta(seconds=60)
-                sqlCmd = ['INSERT INTO tb%d VALUES' % j]
-                for row in range(0, numOfRec):
-                    start_time += time_interval
-                    sqlCmd.append(
-                        "('%s', %f)" %
-                        (start_time, row * 1.2))
-
-                restful_execute(
-                    host, port, user, password, ' '.join(sqlCmd))
-
 
 def insert_data_process(i: int, begin: int, end: int):
     tasks = end - begin
-    v_print("Process %d from %d to %d, tasks %d", i, begin, end, tasks)
+    v_print("Process:%d table from %d to %d, tasks %d", i, begin, end, tasks)
 
     with ThreadPoolExecutor(max_workers=threads) as executor:
         workers = []
@@ -260,19 +271,21 @@ if __name__ == "__main__":
     port = 6041
     user = "root"
     defaultPass = "taosdata"
-    iteration = 1
     processes = 1
     threads = 1
+    insertonly = False
+    autosubtable = False
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:],
-                                       's:m:o:u:w:d:b:c:t:r:i:f:P:T:pnvMh',
+                                       's:m:o:u:w:d:b:c:t:r:P:T:pvMxah',
                                        [
             'hoSt', 'one-More-host', 'pOrt', 'User',
             'passWord', 'numofDb', 'numofstB',
-            'batCh', 'numofTb', 'numofRec', 'Iteration', 'File=',
+            'batCh', 'numofTb', 'numofRec',
             'Processes', 'Threads',
-            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'help'
+            'droPdbonly', 'Verbose', 'Measure',
+            'Autosubtable', 'insertonLy', 'help'
         ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
@@ -299,19 +312,19 @@ if __name__ == "__main__":
             print('\t-w --passWord, specify password, default is taosdata')
             print('\t-d --numofDb, specify number of databases, default is 1')
             print(
-                '\t-b --numofStb, specify number of super-tables per database, default is 1')
-            print('\t-c --batCh, specify number of batch for commands execution, default is 1')
+                '\t-b --numofStb, specify number of super-tables per database, default is 0')
+            print(
+                '\t-c --batCh, specify number of batch for commands execution, default is 1')
             print('\t-t --numofTb, specify number of tables per database, default is 1')
             print('\t-r --numofRec, specify number of records per table, default is 10')
-            print(
-                '\t-i --Iteration, specify number of iteration of insertion, default is 1')
             print('\t-P --Processes, specify number of processes')
             print('\t-T --Threads, specify number of threads')
             print('\t-p --droPdbonly, drop exist database, number specified by -d')
 
-            print('\t-n --Noverbose, for no verbose output')
             print('\t-v --Verbose, for verbose output')
             print('\t-M --Measure, for performance measure')
+            print('\t-A --Autosubtable, automatically create sub-table')
+            print('\t-x --insertonLy, insert only, don\'t drop exist database and table')
             print('')
             sys.exit(0)
 
@@ -332,11 +345,11 @@ if __name__ == "__main__":
         else:
             password = defaultPass
 
-        if key in ['-n', '--Noverbose']:
-            verbose = False
-
         if key in ['-v', '--Verbose']:
             verbose = True
+
+        if key in ['-A', '--Autosubtable']:
+            autosubtable = True
 
         if key in ['-M', '--Measure']:
             measure = True
@@ -359,6 +372,9 @@ if __name__ == "__main__":
         if key in ['-d', '--numofDb']:
             numOfDb = int(value)
             v_print("numOfDb is %d", numOfDb)
+            if (numOfdb <= 0):
+                print("ERROR: wrong number of database given!")
+                sys.exit(1)
 
         if key in ['-c', '--batCh']:
             batch = int(value)
@@ -375,13 +391,13 @@ if __name__ == "__main__":
             numOfRec = int(value)
             v_print("numOfRec is %d", numOfRec)
 
-        if key in ['-i', '--Iteration']:
-            iteration = int(value)
-            v_print("iteration is %d", iteration)
-
         if key in ['-f', '--File']:
             fileOut = value
             v_print("file is %s", fileOut)
+
+        if key in ['-x', '--insertonLy']:
+            insertonly = True
+            v_print("insert only: %d", insertonly)
 
     restful_execute(
         host,
@@ -394,14 +410,15 @@ if __name__ == "__main__":
         start_time = time.time()
 
     if dropDbOnly:
-        drop_database()
+        drop_databases()
         print("Drop Database done.")
         sys.exit(0)
 
     # create databases
     current_db = "db"
-    if numOfDb > 0:
-        create_database()
+    if (insertonly == False):
+        drop_databases()
+    create_databases()
 
     # use last database
     current_db = "db%d" % (numOfDb - 1)
@@ -409,6 +426,9 @@ if __name__ == "__main__":
 
     if numOfStb > 0:
         create_stb()
+        if (autosubtable == False):
+            create_tb_using_stb()
+
         insert_data(processes)
 
         if verbose:
@@ -428,7 +448,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if numOfTb > 0:
-        create_tb_no_stb()
+        create_tb()
+        insert_data(processes)
 
         if verbose:
             for i in range(0, numOfDb):
@@ -438,5 +459,8 @@ if __name__ == "__main__":
                                     "SELECT COUNT(*) FROM tb%d" % (j,))
 
     print("done")
-    end_time = time.time()
-    print("Total time consumed {} seconds.".format((end_time - start_time)))
+    if measure:
+        end_time = time.time()
+        print(
+            "Total time consumed {} seconds.".format(
+                (end_time - start_time)))
