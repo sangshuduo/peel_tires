@@ -188,8 +188,8 @@ def insert_func(arg: int):
     if measure:
         exec_start_time = datetime.datetime.now()
 
-    if oneMoreHost is not "NotSuppored" and random.randint(
-            0, 1) is 1:
+    if oneMoreHost != "NotSuppored" and random.randint(
+            0, 1) == 1:
         v_print("%s", "Send to second host")
         restful_execute(
             oneMoreHost, port, user, password, cmd)
@@ -272,46 +272,46 @@ if __name__ == "__main__":
             'passWord', 'numofDb', 'numofstB',
             'batCh', 'numofTb', 'numofRec', 'Iteration', 'File=',
             'Processes', 'Threads',
-            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'Help'
+            'droPdbonly', 'Nobverbose', 'Verbose', 'Measure', 'help'
         ])
     except getopt.GetoptError as err:
         print('ERROR:', err)
-        print('Try `restful-peel-tires.py --Help` for more options.')
+        print('Try `restful-peel-tires.py --help` for more options.')
         sys.exit(1)
 
     if bool(opts) is False:
-        print('Try `restful-peel-tires.py --Help` for more options.')
+        print('Try `restful-peel-tires.py --help` for more options.')
         sys.exit(1)
 
     for key, value in opts:
-        if key in ['-h', '--Help']:
+        if key in ['-h', '--help']:
             print('')
             print(
                 'Peel Tires (RESTful API Version) Run for TDengine')
             print('Author: Shuduo Sang <sangshuduo@gmail.com>')
             print('')
 
-            print('\t-s --hoSt specify host to connect, default is 127.0.0.1')
+            print('\t-s --hoSt, specify host to connect, default is 127.0.0.1')
             print(
-                '\t-m --one-More-host specify one more host to connect, default is not supported')
-            print('\t-o --pOrt specify port to connect, default is 6041')
-            print('\t-u --User specify user name, default is root')
-            print('\t-w --passWord specify password, default is taosdata')
-            print('\t-d --numofDb specify number of databases, default is 1')
+                '\t-m --one-More-host, specify one more host to connect, default is not supported')
+            print('\t-o --pOrt, specify port to connect, default is 6041')
+            print('\t-u --User, specify user name, default is root')
+            print('\t-w --passWord, specify password, default is taosdata')
+            print('\t-d --numofDb, specify number of databases, default is 1')
             print(
-                '\t-b --numofStb specify number of super-tables per database, default is 1')
-            print('\t-c --batCh specify number of batch for commands execution, default is 1')
-            print('\t-t --numofTb specify number of tables per database, default is 1')
-            print('\t-r --numofRec specify number of records per table, default is 10')
+                '\t-b --numofStb, specify number of super-tables per database, default is 1')
+            print('\t-c --batCh, specify number of batch for commands execution, default is 1')
+            print('\t-t --numofTb, specify number of tables per database, default is 1')
+            print('\t-r --numofRec, specify number of records per table, default is 10')
             print(
-                '\t-i --Iteration specify number of iteration of insertion, default is 1')
-            print('\t-P --Processes specify number of processes')
-            print('\t-T --Threads specify number of threads')
-            print('\t-p --droPdbonly drop exist database, number specified by -d')
+                '\t-i --Iteration, specify number of iteration of insertion, default is 1')
+            print('\t-P --Processes, specify number of processes')
+            print('\t-T --Threads, specify number of threads')
+            print('\t-p --droPdbonly, drop exist database, number specified by -d')
 
-            print('\t-n --Noverbose for no verbose output')
-            print('\t-v --Verbose for verbose output')
-            print('\t-M --Measure for performance measure')
+            print('\t-n --Noverbose, for no verbose output')
+            print('\t-v --Verbose, for verbose output')
+            print('\t-M --Measure, for performance measure')
             print('')
             sys.exit(0)
 
