@@ -99,7 +99,7 @@ def restful_execute(host: str, port: int, user: str, password: str, cmd: str):
 def query_func(process: int, thread: int, cmd: str):
     v_print("%d process %d thread cmd: %s", process, thread, cmd)
     if oneMoreHost != "NotSupported" and random.randint(
-        0, 1) == 1:
+            0, 1) == 1:
         v_print("%s", "Send to second host")
         restful_execute(
             oneMoreHost, port, user, password, cmd)
@@ -113,7 +113,14 @@ def query_data_process(i: int, cmd: str):
     v_print("Process:%d threads: %d cmd: %s", i, threads, cmd)
 
     with ThreadPoolExecutor(max_workers=threads) as executor:
-        workers = [executor.submit(query_func, i, j, cmd) for j in range(0, threads)]
+        workers = [
+            executor.submit(
+                query_func,
+                i,
+                j,
+                cmd) for j in range(
+                0,
+                threads)]
 
         wait(workers, return_when=ALL_COMPLETED)
 
@@ -294,11 +301,23 @@ def insert_data_process(i: int, begin: int, end: int):
         for j in range(begin, end, threads):
             with ThreadPoolExecutor(max_workers=threads) as executor:
                 k = end if ((j + threads) > end) else (j + threads)
-                workers = [executor.submit(insert_func, i, n) for n in range(j, k)]
+                workers = [
+                    executor.submit(
+                        insert_func,
+                        i,
+                        n) for n in range(
+                        j,
+                        k)]
                 wait(workers, return_when=ALL_COMPLETED)
     else:
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            workers = [executor.submit(insert_func, i, j) for j in range(begin, end)]
+            workers = [
+                executor.submit(
+                    insert_func,
+                    i,
+                    j) for j in range(
+                    begin,
+                    end)]
             wait(workers, return_when=ALL_COMPLETED)
 
 
