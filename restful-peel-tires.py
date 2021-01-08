@@ -39,6 +39,12 @@ def v_print(msg: str, arg: int):
         print(msg % int(arg))
 
 
+@dispatch(str, int, str)
+def v_print(msg: str, arg1: int, arg2: str):
+    if verbose:
+        print(msg % (int(arg1), str(arg2)))
+
+
 @dispatch(str, str, int)
 def v_print(msg: str, arg1: str, arg2: int):
     if verbose:
@@ -49,6 +55,12 @@ def v_print(msg: str, arg1: str, arg2: int):
 def v_print(msg: str, arg1: int, arg2: int):
     if verbose:
         print(msg % (int(arg1), int(arg2)))
+
+
+@dispatch(str, int, int, str)
+def v_print(msg: str, arg1: int, arg2: int, arg3: str):
+    if verbose:
+        print(msg % (int(arg1), int(arg2), str(arg3)))
 
 
 @dispatch(str, int, int, int)
@@ -84,6 +96,30 @@ def restful_execute(host: str, port: int, user: str, password: str, cmd: str):
         print("resp: %s" % json.dumps(resp.json()))
 
 
+def query_func(process: int, thread: int, cmd: str):
+    v_print("%d process %d thread cmd: %s", process, thread, cmd)
+
+def query_data_process(i: int, cmd: str):
+    v_print("Process:%d threads: %d cmd: %s", i, threads, cmd)
+
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        workers = [executor.submit(query_func, i, j, cmd) for j in range(0, threads)]
+
+        wait(workers, return_when=ALL_COMPLETED)
+
+    return i
+
+
+def query_data(cmd: str):
+    v_print("query_data processes: %d, cmd: %s", processes, cmd)
+    pool = Pool(processes)
+    for i in range(processes):
+        pool.apply_async(query_data_process, args=(i, cmd))
+        time.sleep(1)
+    pool.close()
+    pool.join()
+
+
 def insert_data(processes: int):
     pool = Pool(processes)
 
@@ -111,7 +147,7 @@ def insert_data(processes: int):
             end = begin + quotient
 
         v_print("Process %d from %d to %d", i, begin, end)
-        pool.apply_async(insert_data_process, args=(i, begin, end, ))
+        pool.apply_async(insert_data_process, args=(i, begin, end))
 
     pool.close()
     pool.join()
@@ -155,8 +191,8 @@ def drop_databases():
             i)
 
 
-def insert_func(arg: int):
-    v_print("Thread arg: %d", arg)
+def insert_func(process: int, thread: int):
+    v_print("%d process %d thread, insert_func ", process, thread)
 
     # generate uuid
     uuid_int = random.randint(0, numOfTb + 1)
@@ -171,7 +207,7 @@ def insert_func(arg: int):
             sqlCmd = ['INSERT INTO ']
             try:
                 sqlCmd.append(
-                    "%s.tb%s " % (current_db, arg))
+                    "%s.tb%s " % (current_db, thread))
 
                 if (numOfStb > 0 and autosubtable):
                     sqlCmd.append("USING %s.st%d TAGS('%s') " %
@@ -244,15 +280,16 @@ def insert_data_process(i: int, begin: int, end: int):
     tasks = end - begin
     v_print("Process:%d table from %d to %d, tasks %d", i, begin, end, tasks)
 
-    with ThreadPoolExecutor(max_workers=threads) as executor:
-        workers = []
-
-        for i in range(begin, end):
-            workers.append(executor.submit(insert_func, i))
-            time.sleep(1)
-
-    for j in range(0, threads):
-        wait(worker[j], return_when=ALL_COMPLETED)
+    if (threads < (end - begin)):
+        for j in range(begin, end, threads):
+            with ThreadPoolExecutor(max_workers=threads) as executor:
+                k = end if ((j + threads) > end) else (j + threads)
+                workers = [executor.submit(insert_func, i, n) for n in range(j, k)]
+                wait(workers, return_when=ALL_COMPLETED)
+    else:
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            workers = [executor.submit(insert_func, i, j) for j in range(begin, end)]
+            wait(workers, return_when=ALL_COMPLETED)
 
 
 if __name__ == "__main__":
@@ -275,6 +312,7 @@ if __name__ == "__main__":
     threads = 1
     insertonly = False
     autosubtable = False
+    queryCmd = ""
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:],
@@ -403,13 +441,13 @@ if __name__ == "__main__":
             insertonly = True
             v_print("insert only: %d", insertonly)
 
-    if verbose:
-        restful_execute(
-            host,
-            port,
-            user,
-            password,
-            "SHOW DATABASES")
+#    if verbose:
+#        restful_execute(
+#            host,
+#            port,
+#            user,
+#            password,
+#            "SHOW DATABASES")
 
     if dropDbOnly:
         drop_databases()
@@ -418,6 +456,7 @@ if __name__ == "__main__":
 
     if queryCmd != "":
         print("queryCmd: %s" % queryCmd)
+        query_data(queryCmd)
         sys.exit(0)
 
     # create databases
