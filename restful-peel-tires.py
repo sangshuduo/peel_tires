@@ -278,13 +278,13 @@ if __name__ == "__main__":
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:],
-                                       's:m:o:u:w:d:b:c:t:r:P:T:pvMxah',
+                                       's:m:o:u:w:d:b:c:t:r:P:T:q:pvMxah',
                                        [
             'hoSt', 'one-More-host', 'pOrt', 'User',
             'passWord', 'numofDb', 'numofstB',
             'batCh', 'numofTb', 'numofRec',
             'Processes', 'Threads',
-            'droPdbonly', 'Verbose', 'Measure',
+            'Query', 'droPdbonly', 'Verbose', 'Measure',
             'Autosubtable', 'insertonLy', 'help'
         ])
     except getopt.GetoptError as err:
@@ -319,6 +319,7 @@ if __name__ == "__main__":
             print('\t-r --numofRec, specify number of records per table, default is 10')
             print('\t-P --Processes, specify number of processes')
             print('\t-T --Threads, specify number of threads')
+            print('\t-q --query, specify a string of SQL query command')
             print('\t-p --droPdbonly, drop exist database, number specified by -d')
 
             print('\t-v --Verbose, for verbose output')
@@ -366,6 +367,9 @@ if __name__ == "__main__":
                 print("FATAL: number of threads must be larger than 0")
                 sys.exit(1)
 
+        if key in ['-q', '--Query']:
+            queryCmd = str(value)
+
         if key in ['-p', '--droPdbonly']:
             dropDbOnly = True
 
@@ -399,26 +403,30 @@ if __name__ == "__main__":
             insertonly = True
             v_print("insert only: %d", insertonly)
 
-    restful_execute(
-        host,
-        port,
-        user,
-        password,
-        "SHOW DATABASES")
-
-    if measure:
-        start_time = time.time()
+    if verbose:
+        restful_execute(
+            host,
+            port,
+            user,
+            password,
+            "SHOW DATABASES")
 
     if dropDbOnly:
         drop_databases()
         print("Drop Database done.")
         sys.exit(0)
 
+    if queryCmd != "":
+        print("queryCmd: %s" % queryCmd)
+        sys.exit(0)
+
     # create databases
-    current_db = "db"
     if (insertonly == False):
         drop_databases()
     create_databases()
+
+    if measure:
+        start_time = time.time()
 
     # use last database
     current_db = "db%d" % (numOfDb - 1)
