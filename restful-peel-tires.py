@@ -98,6 +98,16 @@ def restful_execute(host: str, port: int, user: str, password: str, cmd: str):
 
 def query_func(process: int, thread: int, cmd: str):
     v_print("%d process %d thread cmd: %s", process, thread, cmd)
+    if oneMoreHost != "NotSupported" and random.randint(
+        0, 1) == 1:
+        v_print("%s", "Send to second host")
+        restful_execute(
+            oneMoreHost, port, user, password, cmd)
+    else:
+        v_print("%s", "Send to first host")
+        restful_execute(
+            host, port, user, password, cmd)
+
 
 def query_data_process(i: int, cmd: str):
     v_print("Process:%d threads: %d cmd: %s", i, threads, cmd)
