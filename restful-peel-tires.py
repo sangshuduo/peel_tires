@@ -10,7 +10,7 @@
 ###################################################################
 # sudo apt install python3-pip
 # git clone https://github.com/taosdata/TDengine
-# pip3 install multipledispatch
+# pip3 install -r requirements.txt
 ###################################################################
 
 # -*- coding: utf-8 -*-
